@@ -1,0 +1,8 @@
+{
+  "name": "PHP Getting Started",
+  "description": "Test",
+  "website": "https://devcenter.heroku.com/",
+  "repository": "https://github.com/jonmountjoy/php-getting-started",
+  "success_url": "https://devcenter-staging.heroku.com/articles/getting-started-with-php-new#set-up"
+}  
+  
