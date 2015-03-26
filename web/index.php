@@ -56,7 +56,7 @@ $app->get('/twig/{name}', function($name) use($app) {
 
 
 $app->get('/get_user/', function() use($app) {
-  $st = $app['pdo']->prepare('select * FROM gcm_users');
+  $st = $app['pdo']->prepare('SELECT name FROM gcm_users');
   $st->execute();
 
   $names = array();
@@ -81,11 +81,19 @@ $app->post('/store_user', function (Request $request) use($app) {
   $name = $request->get('name');
   $email = $request->get('email');
   $gcm_regid = $request->get('gcm_regid');
+  $time_stamp = new DateTime();
+  $time_stamp = $time_stamp->format('Y-m-d H:i:s');
 
-  $st = $app['pdo']->prepare('INSERT INTO gcm_users(name, email, gcm_regid, created_at) VALUES('$name', '$email', '$gcm_regid', NOW())');
-  $st->execute();
-
-  return new Response('Thank you for your feedback!', 201);
+   $sql = "INSERT INTO gcm_users (name, email, gcm_regid, created_at) VALUES (?, ?, ?, ?)";
+  $stmt = $app['pdo']->prepare($sql);
+  if (!$stmt) {
+    $app['monolog']->addDebug('PDOException ' . $app['pdo']->errorInfo());
+	return new Response('PDOException ' . $app['pdo']->errorInfo(), 500);
+  }
+  
+  $stmt->execute(array($name,$email,$gcm_regid,$time_stamp));
+  return new Response("name = {$name}; email = {$email}; gcm_regid = {$gcm_regid}; created_at = {$time_stamp}", 201);
+  
 });
 
 $app->run();
