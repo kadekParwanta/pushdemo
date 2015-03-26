@@ -70,6 +70,24 @@ $app->get('/get_user/', function() use($app) {
   ));
 });
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/*
+* /store_user?name=xxxx&email=yyy&gcm_regid=32525
+*/
+
+$app->post('/store_user', function (Request $request) use($app) {
+  $name = $request->get('name');
+  $email = $request->get('email');
+  $gcm_regid = $request->get('gcm_regid');
+
+  $st = $app['pdo']->prepare('INSERT INTO gcm_users(name, email, gcm_regid, created_at) VALUES('$name', '$email', '$gcm_regid', NOW())');
+  $st->execute();
+
+  return new Response('Thank you for your feedback!', 201);
+});
+
 $app->run();
 
 ?>
