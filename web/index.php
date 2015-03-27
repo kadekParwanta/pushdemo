@@ -30,7 +30,18 @@ $app->register(new Herrera\Pdo\PdoServiceProvider(),
 
 $app->get('/', function() use($app) {
   $app['monolog']->addDebug('logging output.');
-  return 'Hello';
+  $st = $app['pdo']->prepare('SELECT * FROM gcm_users');
+  $st->execute();
+
+  $names = array();
+  while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+    $app['monolog']->addDebug('Row ' . $row['name']);
+    $names[] = $row;
+  }
+
+  return $app['twig']->render('index.html.twig', array(
+    'users' => $names
+  ));
 });
 
 $app->get('/db/', function() use($app) {
@@ -74,10 +85,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /*
-* /store_user?name=xxxx&email=yyy&gcm_regid=32525
+* /register?name=xxxx&email=yyy&gcm_regid=32525
 */
 
-$app->post('/store_user', function (Request $request) use($app) {
+$app->post('/register', function (Request $request) use($app) {
   $name = $request->get('name');
   $email = $request->get('email');
   $gcm_regid = $request->get('gcm_regid');
@@ -91,8 +102,27 @@ $app->post('/store_user', function (Request $request) use($app) {
 	return new Response('PDOException ' . $app['pdo']->errorInfo(), 500);
   }
   
+  include_once './GCM.php';
   $stmt->execute(array($name,$email,$gcm_regid,$time_stamp));
-  return new Response("name = {$name}; email = {$email}; gcm_regid = {$gcm_regid}; created_at = {$time_stamp}", 201);
+  $gcm = new GCM();
+  $registatoin_ids = array($gcm_regid);
+  $message = array("product" => "shirt");
+  $result = $gcm->send_notification($registatoin_ids, $message);
+  return new Response("name = {$name}; email = {$email}; gcm_regid = {$gcm_regid}; created_at = {$time_stamp}; message= {$message}", 201);
+  
+});
+
+$app->get('/send_message', function (Request $request) use($app) {
+  $regId = $request->get['regId'];
+  $message = $request->get['message'];   
+  include_once './GCM.php';
+  
+  $gcm = new GCM();
+  $registatoin_ids = array($regId);
+  $message = array("price" => $message);
+  $result = $gcm->send_notification($registatoin_ids, $message);
+ 
+  return new Response("regId = {$regId}; message= {$message}", 201);
   
 });
 
