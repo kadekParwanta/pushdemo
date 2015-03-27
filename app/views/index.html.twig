@@ -65,46 +65,15 @@
         </style>
     </head>
     <body>
-        <?php
-		$users = {{users}};
-        if ($users != false)
-            $no_of_users = count($users);
-		}
-        else
-            $no_of_users = 0;
-        ?>
         <div class="container">
-            <h1>No of Devices Registered: <?php echo $no_of_users; ?></h1>
+            <h1>No of Devices Registered: {{users|length}}</h1>
             <hr/>
             <ul class="devices">
-                <?php
-                if ($no_of_users > 0) {
-                    ?>
-                    <?php
-					$x = 1; 
-                    while ($x < $no_of_users) {
-					$row = $users[$x];
-					$x++;
-                        ?>
-                        <li>
-                            <form id="<?php echo $row["id"] ?>" name="" method="post" onsubmit="">
-                                <label>Name: </label> <span><?php echo $row["name"] ?></span>
-                                <div class="clear"></div>
-                                <label>Email:</label> <span><?php echo $row["email"] ?></span>
-                                <div class="clear"></div>
-                                <div class="send_container">                                
-                                    <textarea rows="3" name="message" cols="25" class="txt_message" placeholder="Type message here"></textarea>
-                                    <input type="hidden" name="regId" value="<?php echo $row["gcm_regid"] ?>"/>
-                                    <input type="submit" class="send_btn" value="Send" onclick=""/>
-                                </div>
-                            </form>
-                        </li>
-                    <?php }
-                } else { ?> 
-                    <li>
-                        No Users Registered Yet!
-                    </li>
-                <?php } ?>
+			{% for user in users %}
+			<li>{{ user.username }}</li>
+            {% else %}
+            <li><em>no user found</em></li>
+			{% endfor %}
             </ul>
         </div>
     </body>

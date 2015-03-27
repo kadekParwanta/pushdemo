@@ -1,8 +1,8 @@
 {
-  "name": "PHP Getting Started",
+  "name": "PushDemo",
   "description": "Test",
-  "website": "https://devcenter.heroku.com/",
-  "repository": "https://github.com/jonmountjoy/php-getting-started",
+  "website": "https://pushdemo.heroku.com/",
+  "repository": "https://github.com/kadekParwanta/pushdemo",
   "success_url": "https://devcenter-staging.heroku.com/articles/getting-started-with-php-new#set-up"
 }  
   
