@@ -9,9 +9,9 @@
         <li>
             <form action="{{ path('send_message') }}" method="post" class="form-vertical" id="sendform">
             User name: {{user.username}}<br>
-            <input type="text" name="gcm" value={{user.gcm}}>
+            GCM ID: <input type="text" name="gcm" value={{user.gcm}}><br>
             <br><br>
-            <textarea name="message" form="sendform">Enter message here...</textarea>
+            Message: <input type="text" name="message"><br>
             <br><br>
             <input type="submit" value="Send Notification">
             </form>

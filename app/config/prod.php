@@ -22,4 +22,4 @@ $app['db.options'] = array(
     'password' => $dbopts["pass"],
 );
 
-define("GOOGLE_API_KEY", "AIzaSyB8p2nogJBWl2ukhwBCvm3ZbhwghJRzjR0"); // Place your Google API Key
+define("GOOGLE_API_KEY", "AIzaSyDIrox4lggueqtLPeC82MJX3ebg4U48nZw"); // Place your Google API Key

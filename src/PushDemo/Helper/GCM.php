@@ -6,14 +6,15 @@ class GCM {
     //put your code here
     // constructor
     function __construct() {
-         
+          
     }
  
     /**
      * Sending Push Notification
      */
-    public function send_notification($registatoin_ids, $message) {
+    public function send_notification($registatoin_ids, $message, $app) {
  
+        $app['monolog']->addDebug('GCM send_notification start'); 
         // Set POST variables
         $url = 'https://android.googleapis.com/gcm/send';
  
@@ -49,7 +50,7 @@ class GCM {
  
         // Close connection
         curl_close($ch);
-        echo $result;
+        $app['monolog']->addDebug('send_notification result= '.$result.' url= '.$url.' fields= '.$fields.' headers'.$headers);  
     }
  
 }

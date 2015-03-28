@@ -99,17 +99,18 @@ class AdminUserController
 
     public function sendAction(Request $request, Application $app)
     {
-        $gcm = $request->attributes->get('gcm');
-        $message = $request->attributes->get('message');
-        if (!$gcm) {
-            $app->abort(404, 'The requested gcm id was not found.');
+        $gcmId = $request->get('gcm');
+        $message = $request->get('message');
+        if (!$gcmId) {
+            $app->abort(404, 'The requested gcm id was not found. request='.$request);
         }
 
         //TODO GCM integration
         $gcm = new GCM();
-        $registatoin_ids = array($gcm);
+        $registatoin_ids = array($gcmId);
         $pushData = array("message" => $message);
-        $result = $gcm->send_notification($registatoin_ids, $pushData);    
-        return $app->redirect($app['url_generator']->generate('admin_users'));
+        $result = $gcm->send_notification($registatoin_ids, $pushData, $app);  
+        $app['monolog']->addDebug('registatoin_ids ' . $registatoin_ids . ' pushData = '.$pushData);  
+        return $app->redirect($app['url_generator']->generate('homepage'));
     }
 }
