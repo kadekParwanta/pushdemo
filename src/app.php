@@ -38,7 +38,7 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
         ),
     ),
     'security.role_hierarchy' => array(
-       'ROLE_ADMIN' => array('ROLE_USER'),
+       'ROLE_ADMIN' => array('ROLE_USER','ROLE_COURIER'),
     ),
 ));
 $app->register(new Silex\Provider\TwigServiceProvider(), array(

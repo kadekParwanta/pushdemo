@@ -25,9 +25,8 @@ class UserType extends AbstractType
             ->add('mail', 'email', array(
                 'constraints' => array(new Assert\NotBlank(), new Assert\Email()),
             ))
-            ->add('gcmId', 'gcmId', array(
-                'required' => FALSE,
-                'label' => 'gcmId',
+            ->add('gcm', 'text', array(
+                 'constraints' => new Assert\NotBlank(),
             ))
             ->add('role', 'choice', array(
                 'choices' => array('ROLE_USER' => 'User', 'ROLE_ADMIN' => 'Admin', 'ROLE_COURIER' => 'Courier')

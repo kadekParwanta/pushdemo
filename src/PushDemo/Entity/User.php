@@ -21,6 +21,13 @@ class User implements UserInterface
     protected $username;
 
     /**
+     * Username.
+     *
+     * @var string
+     */
+    protected $gcm;
+
+    /**
      * Salt.
      *
      * @var string
@@ -55,7 +62,7 @@ class User implements UserInterface
      *
      * @var string
      */
-    protected $gcmId;
+    protected $gcmid;
 
     /**
      * When the artist entity was created.
@@ -85,6 +92,19 @@ class User implements UserInterface
     public function setUsername($username)
     {
         $this->username = $username;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getGcm()
+    {
+        return $this->gcm;
+    }
+
+    public function setGcm($gcm)
+    {
+        $this->gcm = $gcm;
     }
 
     /**
@@ -123,13 +143,13 @@ class User implements UserInterface
         $this->mail = $mail;
     }
 
-    public function getGcmId() 
+    public function getGcmRegid() 
     {
-        return $this->gcmId;
+        return $this->gcmid;
     }
 
-    public function setGcmId($gcmId) {
-        $this->gcmId = $gcmId;
+    public function setGcmRegid($gcmId) {
+        $this->gcmid = $gcmId;
     }
 
     public function getCreatedAt()

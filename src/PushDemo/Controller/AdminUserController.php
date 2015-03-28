@@ -44,11 +44,6 @@ class AdminUserController
                 // Redirect to the edit page.
                 $redirect = $app['url_generator']->generate('admin_user_edit', array('user' => $user->getId()));
                 
-                //TODO GCM integration
-                /*$gcm = new GCM();
-                $registatoin_ids = array($gcm_regid);
-                $message = array("product" => "shirt");
-                $result = $gcm->send_notification($registatoin_ids, $message);*/
                 return $app->redirect($redirect);
             }
         }
@@ -99,6 +94,22 @@ class AdminUserController
         }
 
         $app['repository.user']->delete($user->getId());
+        return $app->redirect($app['url_generator']->generate('admin_users'));
+    }
+
+    public function sendAction(Request $request, Application $app)
+    {
+        $gcm = $request->attributes->get('gcm');
+        $message = $request->attributes->get('message');
+        if (!$gcm) {
+            $app->abort(404, 'The requested gcm id was not found.');
+        }
+
+        //TODO GCM integration
+        $gcm = new GCM();
+        $registatoin_ids = array($gcm);
+        $pushData = array("message" => $message);
+        $result = $gcm->send_notification($registatoin_ids, $pushData);    
         return $app->redirect($app['url_generator']->generate('admin_users'));
     }
 }

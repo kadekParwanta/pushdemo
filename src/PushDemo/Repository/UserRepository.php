@@ -41,7 +41,7 @@ class UserRepository implements RepositoryInterface, UserProviderInterface
             'username' => $user->getUsername(),
             'mail' => $user->getMail(),
             'role' => $user->getRole(),
-            'gcmId' => $user->getGcmId(),
+            'gcm_regid' => $user->getGcm(),
         );
         // If the password was changed, re-encrypt it.
         if (strlen($user->getPassword()) != 88) {
@@ -53,7 +53,7 @@ class UserRepository implements RepositoryInterface, UserProviderInterface
             $this->db->update('users', $userData, array('user_id' => $user->getId()));
         } else {
             // The user is new, note the creation timestamp.
-            $userData['created_at'] = time();
+            $userData['created_at'] = Date('Y-m-d H:i:s');
 
             $this->db->insert('users', $userData);
             // Get the id of the newly created user and set it on the entity.
@@ -199,7 +199,7 @@ class UserRepository implements RepositoryInterface, UserProviderInterface
         $user->setPassword($userData['password']);
         $user->setMail($userData['mail']);
         $user->setRole($userData['role']);
-        $user->setGcmId($userData['gcmId']);
+        $user->setGcm($userData['gcm_regid']);
         $createdAt = new \DateTime($userData['created_at']);
         $user->setCreatedAt($createdAt);
         return $user;

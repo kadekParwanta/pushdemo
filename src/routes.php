@@ -31,3 +31,5 @@ $app->match('/admin/users/{user}/edit', 'PushDemo\Controller\AdminUserController
     ->bind('admin_user_edit');
 $app->match('/admin/users/{user}/delete', 'PushDemo\Controller\AdminUserController::deleteAction')
     ->bind('admin_user_delete');
+$app->match('/admin/send_message', 'PushDemo\Controller\AdminUserController::sendAction')
+    ->bind('send_message');

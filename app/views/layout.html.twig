@@ -14,9 +14,8 @@
             <ul class="nav">
                 <li {% if 'homepage' == active %}class="active"{% endif %}><a href="{{ path('homepage') }}"><i class="icon-home"></i>  {{ 'Home'|trans }}</a></li>
                 {% if is_granted('ROLE_ADMIN') %}
-                <li {% if 'admin_artists' == active %}class="active"{% endif %}><a href="{{ path('admin_artists') }}"><i class="icon-dashboard"></i>  {{ 'Administration'|trans }}</a></li>
+                <li {% if 'admin_users' == active %}class="active"{% endif %}><a href="{{ path('admin_users') }}"><i class="icon-dashboard"></i>  {{ 'Administration'|trans }}</a></li>
                 {% endif %}
-                <li {% if 'artists' == active %}class="active"{% endif %}><a href="{{ path('artists') }}"><i class="icon-music"></i>  {{ 'Artists'|trans }}</a></li>
             </ul>
             <ul class="nav pull-right">
                 {% if is_granted('ROLE_USER') %}

@@ -11,6 +11,7 @@
                     <th> {{ 'Username'|trans }} </th>
                     <th> {{ 'Mail'|trans }} </th>
                     <th> {{ 'Role'|trans }} </th>
+                    <th> {{ 'GCM Reg ID'|trans }} </th>
                     <th> {{ 'Created on'|trans }} </th>
                     <th> {{ 'Operations'|trans }} </th>
                 </tr>
@@ -27,6 +28,7 @@
                                 {{ 'User'|trans }}
                             {% endif %}
                         </td>
+                         <td> {{ user.gcm }} </td>
                         <td> {{ user.createdAt|date('Y-m-d H:i') }} </td>
                         <td>
                             <a href="{{ path('admin_user_edit', {'user': user.id}) }}">edit</a>
