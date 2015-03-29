@@ -6,6 +6,7 @@ use PushDemo\Entity\User;
 use PushDemo\Form\Type\UserType;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController
 {
@@ -45,26 +46,36 @@ class UserController
         return $app->redirect($app['url_generator']->generate('homepage'));
     }
 
+    /*
+    * /register API
+    * method : POST
+    * 
+    * params:
+    *   username
+    *   password
+    *   mail
+    *   role : ROLE_ADMIN, ROLE_USER, ROLE_COURIER
+    *   gcm_regid
+    * 
+    * return:
+    *   201 : Created
+    */
+
     public function registerAction(Request $request, Application $app)
     {
         $user = new User();
-        $form = $app['form.factory']->create(new UserType(), $user);
-
         if ($request->isMethod('POST')) {
-            $form->bind($request);
-            if ($form->isValid()) {
-                $app['repository.user']->save($user);
-                $message = 'The user ' . $user->getUsername() . ' has been saved.';
-                $app['session']->getFlashBag()->add('success', $message);                
-                 return new Response($message, 201);
-            }
-        }
+            $user->setUsername($request->get('username'));
+            $user->setPassword($request->get('password'));
+            $user->setMail($request->get('mail'));
+            $user->setRole($request->get('role'));
+            $user->setGcm($request->get('gcm_regid'));
 
-        $data = array(
-            'form' => $form->createView(),
-            'title' => 'Add new user',
-        );
-        return $app['twig']->render('form.html.twig', $data);
+            $app['repository.user']->save($user);
+            $message = 'The user ' . $user->getUsername() . ' has been saved.';
+            $app['session']->getFlashBag()->add('success', $message);                
+            return new Response($message, 201);
+        }
     }
 
     public function editUserAction(Request $request, Application $app)
@@ -73,28 +84,19 @@ class UserController
         if (!$user) {
             $app->abort(404, 'The requested user was not found.');
         }
-        $form = $app['form.factory']->create(new UserType(), $user);
-
         if ($request->isMethod('POST')) {
             $previousPassword = $user->getPassword();
-            $form->bind($request);
-            if ($form->isValid()) {
-                // If an empty password was entered, restore the previous one.
-                $password = $user->getPassword();
-                if (!$password) {
-                    $user->setPassword($previousPassword);
-                }
-
-                $app['repository.user']->save($user);
-                $message = 'The user ' . $user->getUsername() . ' has been saved.';
-                $app['session']->getFlashBag()->add('success', $message);
+            // If an empty password was entered, restore the previous one.
+            $password = $user->getPassword();
+            if (!$password) {
+                $user->setPassword($previousPassword);
             }
+
+            $app['repository.user']->save($user);
+            $message = 'The user ' . $user->getUsername() . ' has been saved.';
+            $app['session']->getFlashBag()->add('success', $message);
+            return new Response($message, 201);
         }
 
-        $data = array(
-            'form' => $form->createView(),
-            'title' => 'Edit user ' . $user->getUsername(),
-        );
-        return $app['twig']->render('form.html.twig', $data);
     }
 }
