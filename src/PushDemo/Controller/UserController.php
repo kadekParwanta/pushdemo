@@ -7,6 +7,8 @@ use PushDemo\Form\Type\UserType;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use PushDemo\Helper\PHP_GCM\Sender;
+use PushDemo\Helper\PHP_GCM\Message;
 
 class UserController
 {
@@ -75,6 +77,63 @@ class UserController
             $message = 'The user ' . $user->getUsername() . ' has been saved.';
             $app['session']->getFlashBag()->add('success', $message);                
             return new Response($message, 201);
+        }
+    }
+
+     /*
+    * /push_to_user API
+    * method : POST
+    * 
+    * params:
+    *   current_user
+    *   password
+    *   username
+    *   message
+    * 
+    * return:
+    *   000 : message sent
+    */
+
+    public function pushToUserAction(Request $request, Application $app)
+    {
+        if ($request->isMethod('POST')) {
+            $current_user = $app['repository.user']->loadUserByUsername($request->get('current_user'));
+            $current_pass = $request->get('current_user');
+            $password = $current_user->getPassword();
+            //TODO user auth 
+
+            $user = $app['repository.user']->loadUserByUsername($request->get('username'));
+            $gcmId = $user->getGcm();
+            $message = $request->get('message');
+
+            $app['monolog']->addDebug('password '.$password.' current_pass = '.$current_pass.' gcmId = '.$gcmId);
+            if (!$gcmId) {
+                $app->abort(404, 'The requested gcm id was not found. request='.$request);
+                return new Response('The requested gcm id was not found', 404);
+            }
+        
+            $registatoin_ids = array($gcmId);
+            $pushData = array("message" => $message);
+            $app['monolog']->addDebug('registatoin_ids ' . $registatoin_ids . ' pushData = '.$pushData);  
+
+            $collapseKey = 'message with payload';
+            $sender = new Sender(GOOGLE_API_KEY);
+            $messageSend = new Message($collapseKey, $pushData);
+            $numberOfRetryAttempts = 2;
+            try {
+                $result = $sender->send($messageSend, $gcmId, $numberOfRetryAttempts);
+            } catch (\InvalidArgumentException $e) {
+            // $deviceRegistrationId was null
+                return 'deviceRegistrationId was null';
+            } catch (PHP_GCM\InvalidRequestException $e) {
+            // server returned HTTP code other than 200 or 503
+                return 'server returned HTTP code other than 200 or 503';
+            } catch (\Exception $e) {
+            // message could not be sent
+                return 'message could not be sent';
+            }
+
+            return new Response('message sent to '.$user->getUsername(), 200);
         }
     }
 

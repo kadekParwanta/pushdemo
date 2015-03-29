@@ -23,6 +23,9 @@ $app->match('/register', 'PushDemo\Controller\UserController::registerAction')
     ->bind('register');
 $app->get('/user_edit', 'PushDemo\Controller\UserController::editUserAction')
     ->bind('user_edit');
+$app->match('/push_to_user', 'PushDemo\Controller\UserController::pushToUserAction')
+    ->bind('push_to_user');
+
 
 $app->get('/admin', 'PushDemo\Controller\AdminController::indexAction')
     ->bind('admin');
