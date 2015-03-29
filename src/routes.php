@@ -19,6 +19,10 @@ $app->match('/login', 'PushDemo\Controller\UserController::loginAction')
     ->bind('login');
 $app->get('/logout', 'PushDemo\Controller\UserController::logoutAction')
     ->bind('logout');
+$app->match('/register', 'PushDemo\Controller\UserController::registerAction')
+    ->bind('register');
+$app->get('/user_edit', 'PushDemo\Controller\UserController::editUserAction')
+    ->bind('user_edit');
 
 $app->get('/admin', 'PushDemo\Controller\AdminController::indexAction')
     ->bind('admin');

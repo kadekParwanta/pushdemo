@@ -44,4 +44,57 @@ class UserController
         $app['session']->clear();
         return $app->redirect($app['url_generator']->generate('homepage'));
     }
+
+    public function registerAction(Request $request, Application $app)
+    {
+        $user = new User();
+        $form = $app['form.factory']->create(new UserType(), $user);
+
+        if ($request->isMethod('POST')) {
+            $form->bind($request);
+            if ($form->isValid()) {
+                $app['repository.user']->save($user);
+                $message = 'The user ' . $user->getUsername() . ' has been saved.';
+                $app['session']->getFlashBag()->add('success', $message);                
+                 return new Response($message, 201);
+            }
+        }
+
+        $data = array(
+            'form' => $form->createView(),
+            'title' => 'Add new user',
+        );
+        return $app['twig']->render('form.html.twig', $data);
+    }
+
+    public function editUserAction(Request $request, Application $app)
+    {
+        $user = $request->attributes->get('user');
+        if (!$user) {
+            $app->abort(404, 'The requested user was not found.');
+        }
+        $form = $app['form.factory']->create(new UserType(), $user);
+
+        if ($request->isMethod('POST')) {
+            $previousPassword = $user->getPassword();
+            $form->bind($request);
+            if ($form->isValid()) {
+                // If an empty password was entered, restore the previous one.
+                $password = $user->getPassword();
+                if (!$password) {
+                    $user->setPassword($previousPassword);
+                }
+
+                $app['repository.user']->save($user);
+                $message = 'The user ' . $user->getUsername() . ' has been saved.';
+                $app['session']->getFlashBag()->add('success', $message);
+            }
+        }
+
+        $data = array(
+            'form' => $form->createView(),
+            'title' => 'Edit user ' . $user->getUsername(),
+        );
+        return $app['twig']->render('form.html.twig', $data);
+    }
 }
