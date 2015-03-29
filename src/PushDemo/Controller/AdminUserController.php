@@ -4,7 +4,8 @@ namespace PushDemo\Controller;
 
 use PushDemo\Entity\User;
 use PushDemo\Form\Type\UserType;
-use PushDemo\Helper\GCM;
+use PushDemo\Helper\PHP_GCM\Sender;
+use PushDemo\Helper\PHP_GCM\Message;
 use Silex\Application;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,13 +105,38 @@ class AdminUserController
         if (!$gcmId) {
             $app->abort(404, 'The requested gcm id was not found. request='.$request);
         }
-
-        //TODO GCM integration
-        $gcm = new GCM();
+        
         $registatoin_ids = array($gcmId);
         $pushData = array("message" => $message);
-        $result = $gcm->send_notification($registatoin_ids, $pushData, $app);  
+        // $payloadData = array(
+        //     'registration_ids' => $registatoin_ids,
+        //     'data' => $pushData,
+        // );
+        
+        //TODO GCM integration 1
+        /* 
+        $gcm = new GCM();
+        $result = $gcm->send_notification($registatoin_ids, $pushData, $app);*/  
         $app['monolog']->addDebug('registatoin_ids ' . $registatoin_ids . ' pushData = '.$pushData);  
+
+        //TODO GCM integration 2
+        $collapseKey = 'message with payload';
+        $sender = new Sender(GOOGLE_API_KEY);
+        $messageSend = new Message($collapseKey, $pushData);
+        $numberOfRetryAttempts = 2;
+        try {
+            $result = $sender->send($messageSend, $gcmId, $numberOfRetryAttempts);
+        } catch (\InvalidArgumentException $e) {
+        // $deviceRegistrationId was null
+            return 'deviceRegistrationId was null';
+        } catch (PHP_GCM\InvalidRequestException $e) {
+        // server returned HTTP code other than 200 or 503
+            return 'server returned HTTP code other than 200 or 503';
+        } catch (\Exception $e) {
+        // message could not be sent
+            return 'message could not be sent';
+        }
+
         return $app->redirect($app['url_generator']->generate('homepage'));
     }
 }
