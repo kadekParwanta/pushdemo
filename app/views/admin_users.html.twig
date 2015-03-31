@@ -24,8 +24,10 @@
                          <td>
                             {% if user.role == 'ROLE_ADMIN' %}
                                 {{ 'Admin'|trans }}
+                            {% else if user.role == 'ROLE_COURIER' %}
+                                {{ 'Courier'|trans }}
                             {% else %}
-                                {{ 'User'|trans }}
+                                {{ 'Courier'|trans }}
                             {% endif %}
                         </td>
                          <td> {{ user.gcm }} </td>

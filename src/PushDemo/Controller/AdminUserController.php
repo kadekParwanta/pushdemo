@@ -139,6 +139,6 @@ class AdminUserController
             return 'message could not be sent';
         }
 
-        return 'a message has been sent to user'.$username.' : '.$message;
+        return 'a message has been sent to user '.$username.' : '.$message;
     }
 }
