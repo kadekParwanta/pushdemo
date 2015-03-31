@@ -60,8 +60,17 @@ class UserController
     *   gcm_regid
     * 
     * return:
-    *   201 : Created
-    *   500 : Error (Already exist; Error in db)
+    *   json {
+    *       'error':0/1,
+    *       'error_message':if_any
+    *       'uid':'uid'
+    *       'user': {
+    *             'name':'name'
+    *             'email':'email'
+    *             'create_at':'create_at'
+    *             'gcmId':'gcmId'
+    *       }
+    *    }
     */
 
     public function registerAction(Request $request, Application $app)
@@ -71,12 +80,14 @@ class UserController
         $password = $request->get('password');
 
         $existingUser = $app['repository.user']->loadUserByUsername($username);
-        $response = array('error' => FALSE);
+        $responseData = array('error' => FALSE);
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json'); 
 
         if($existingUser) {
-            $response['error'] = TRUE;
-            $response['error_message'] = 'User already existed';
-            return new Response($response, 500);  
+            $responseData['error'] = TRUE;
+            $responseData['error_message'] = 'User already existed';
+            $response->setContent(json_decode($responseData));
         } else {
             $user = new User();
             $user->setUsername($request->get('username'));
@@ -86,22 +97,22 @@ class UserController
             $user->setGcm($request->get('gcm_regid'));
 
             if ($app['repository.user']->save($user)) {
-                $response['error'] = FALSE;
-                $response['uid'] = $user->getId();
-                $response['user']['name'] = $user->getUsername();
-                $response['user']['email'] = $user->getMail;
-                $response['user']['created_at'] = $user->getCreatedAt();
-                $response['user']['gcmId'] = $user->getGcm;
-                $app['session']->getFlashBag()->add('success', $message);                
-                return new Response($response, 201);              
+                $responseData['error'] = FALSE;
+                $responseData['uid'] = $user->getId();
+                $responseData['user']['name'] = $user->getUsername();
+                $responseData['user']['email'] = $user->getMail;
+                $responseData['user']['created_at'] = $user->getCreatedAt();
+                $responseData['user']['gcmId'] = $user->getGcm;
+                $response->setContent(json_decode($responseData));
+                $app['session']->getFlashBag()->add('success', $message);    
             } else {
-                $response['error'] = TRUE;
-                $response['error_message'] = 'Error occured in registration';
-                return new Response($response, 500);  
+                $responseData['error'] = TRUE;
+                $responseData['error_message'] = 'Error occured in registration';
+                $response->setContent(json_decode($responseData));
             }
             
         }
-        
+        return $response;
     }
 
     /*
@@ -113,8 +124,18 @@ class UserController
     *   password
     * 
     * return:
-    *   200 : OK
-    *   500 : Error (Incorrect params)
+    *   json {
+    *       'error':0/1,
+    *       'error_message':if_any
+    *       'uid':'uid'
+    *       'user': {
+    *             'name':'name'
+    *             'email':'email'
+    *             'create_at':'create_at'
+    *             'gcmId':'gcmId'
+    *       }
+    *    }
+    * 
     */
 
     public function clientLoginAction(Request $request, Application $app)
@@ -123,22 +144,27 @@ class UserController
         $password = $request->get('password');
 
         $existingUser = $app['repository.user']->loadUserByUsername($usernameOrEmail);
-        $response = array('error' => FALSE);
+        $responseData = array('error' => FALSE);
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json'); 
 
         if($existingUser) {
-            $response['error'] = FALSE;
-            $response['uid'] = $existingUser->getId();
-            $response['user']['name'] = $existingUser->getUsername();
-            $response['user']['email'] = $existingUser->getMail;
-            $response['user']['created_at'] = $existingUser->getCreatedAt();
-            $response['user']['gcmId'] = $existingUser->getGcm;
-            $app['session']->getFlashBag()->add('success', $message);                
-            return new Response($response, 200);   
+            $responseData['error'] = FALSE;
+            $responseData['uid'] = $existingUser->getId();
+            $responseData['user']['name'] = $existingUser->getUsername();
+            $responseData['user']['email'] = $existingUser->getMail;
+            $responseData['user']['created_at'] = $existingUser->getCreatedAt();
+            $responseData['user']['gcmId'] = $existingUser->getGcm;
+            $app['session']->getFlashBag()->add('success', $message);
+            $response->setContent(json_decode($responseData));               
+            
         } else {
-            $response['error'] = TRUE;
-            $response['error_message'] = 'Incorrect Email/Username or password!';
-            return new Response($response, 500); 
+            $responseData['error'] = TRUE;
+            $responseData['error_message'] = 'Incorrect Email/Username or password!';
+            $response->setContent(json_decode($responseData));
         }
+
+        return $response;
         
     }
 
