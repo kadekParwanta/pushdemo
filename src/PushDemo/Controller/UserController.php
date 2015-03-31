@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use PushDemo\Helper\PHP_GCM\Sender;
 use PushDemo\Helper\PHP_GCM\Message;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class UserController
 {
@@ -79,16 +80,16 @@ class UserController
         $mail = $request->get('mail');
         $password = $request->get('password');
 
-        $existingUser = $app['repository.user']->loadUserByUsername($username);
         $responseData = array('error' => FALSE);
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json'); 
-
-        if($existingUser) {
+        //TODO create method isUserExist() in repository
+        try {
+            $existingUser = $app['repository.user']->loadUserByUsername($username);
             $responseData['error'] = TRUE;
             $responseData['error_message'] = 'User already existed';
             $response->setContent(json_encode($responseData));
-        } else {
+        } catch (UsernameNotFoundException $e) {
             $user = new User();
             $user->setUsername($request->get('username'));
             $user->setPassword($request->get('password'));
@@ -110,8 +111,8 @@ class UserController
                 $responseData['error_message'] = 'Error occured in registration';
                 $response->setContent(json_encode($responseData));
             }
-            
         }
+
         return $response;
     }
 
@@ -142,13 +143,12 @@ class UserController
     {
         $usernameOrEmail = $request->get('usernameOrEmail');
         $password = $request->get('password');
-
-        $existingUser = $app['repository.user']->loadUserByUsernameAndPassword($usernameOrEmail, $password);
         $responseData = array('error' => FALSE);
         $response = new Response();
-        $response->headers->set('Content-Type', 'application/json'); 
+        $response->headers->set('Content-Type', 'application/json');
 
-        if($existingUser) {
+        try {
+            $existingUser = $app['repository.user']->loadUserByUsernameAndPassword($usernameOrEmail, $password);
             $responseData['error'] = FALSE;
             $responseData['uid'] = $existingUser->getId();
             $responseData['user']['name'] = $existingUser->getUsername();
@@ -156,9 +156,8 @@ class UserController
             $responseData['user']['created_at'] = $existingUser->getCreatedAt();
             $responseData['user']['gcmId'] = $existingUser->getGcm();
             $app['session']->getFlashBag()->add('success', $message);
-            $response->setContent(json_encode($responseData));               
-            
-        } else {
+            $response->setContent(json_encode($responseData));  
+        } catch (UsernameNotFoundException $e) {
             $responseData['error'] = TRUE;
             $responseData['error_message'] = 'Incorrect Email/Username or password!';
             $response->setContent(json_encode($responseData));
