@@ -98,22 +98,34 @@ class UserController
             $user->setRole($request->get('role'));
             $user->setGcm($request->get('gcm_regid'));
 
-            if ($app['repository.user']->save($user)) {
-                $responseData['error'] = FALSE;
-                $responseData['uid'] = $user->getId();
-                $responseData['user']['name'] = $user->getUsername();
-                $responseData['user']['email'] = $user->getMail();
-                $responseData['user']['created_at'] = $user->getCreatedAt();
-                $responseData['user']['gcmId'] = $user->getGcm();
-                $response->setContent(json_encode($responseData)); 
-                $response->setStatusCode(200);  
-                $app['session']->getFlashBag()->add('success', $message);    
-            } else {
-                $responseData['error'] = TRUE;
-                $responseData['error_message'] = 'Error occured in registration';
-                $response->setContent(json_encode($responseData)); 
-                $response->setStatusCode(500);  
-            }
+            $app['repository.user']->save($user);
+            $responseData['error'] = FALSE;
+            $responseData['uid'] = $user->getId();
+            $responseData['user']['name'] = $user->getUsername();
+            $responseData['user']['email'] = $user->getMail();
+            $responseData['user']['created_at'] = $user->getCreatedAt();
+            $responseData['user']['gcmId'] = $user->getGcm();
+            $response->setContent(json_encode($responseData)); 
+            $response->setStatusCode(200);  
+            $app['session']->getFlashBag()->add('success', $message); 
+
+            //TODO handle error in storing to DB
+            // if ($app['repository.user']->save($user)) {
+            //     $responseData['error'] = FALSE;
+            //     $responseData['uid'] = $user->getId();
+            //     $responseData['user']['name'] = $user->getUsername();
+            //     $responseData['user']['email'] = $user->getMail();
+            //     $responseData['user']['created_at'] = $user->getCreatedAt();
+            //     $responseData['user']['gcmId'] = $user->getGcm();
+            //     $response->setContent(json_encode($responseData)); 
+            //     $response->setStatusCode(200);  
+            //     $app['session']->getFlashBag()->add('success', $message);    
+            // } else {
+            //     $responseData['error'] = TRUE;
+            //     $responseData['error_message'] = 'Error occured in registration';
+            //     $response->setContent(json_encode($responseData)); 
+            //     $response->setStatusCode(500);  
+            // }
         }
 
         return $response;
