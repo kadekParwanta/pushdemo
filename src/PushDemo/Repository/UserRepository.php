@@ -172,15 +172,14 @@ class UserRepository implements RepositoryInterface, UserProviderInterface
         }
 
         $user = $this->buildUser($usersData[0]);
-        $pass = $this->encoder->encodePassword($user->getPassword(), $user->getSalt());
-        return $user;
+        $encryptedPass = $this->encoder->encodePassword($password, $user->getSalt());
 
         //TODO validate the encoded password --> use admin_login_check
-        // if ($pass == $password) {
-        //     return $user;
-        // } else {
-        //     throw new UsernameNotFoundException(sprintf('Incorrect username/email or password "%s"', $username));
-        // }
+        if ($encryptedPass == $user->getPassword()) {
+            return $user;
+        } else {
+            throw new UsernameNotFoundException(sprintf('Incorrect username/email or password "%s"', $username));
+        }
     }
 
     /**
