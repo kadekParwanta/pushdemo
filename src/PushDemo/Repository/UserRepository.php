@@ -155,6 +155,31 @@ class UserRepository implements RepositoryInterface, UserProviderInterface
         return $user;
     }
 
+    public function loadUserByUsernameAndPassword($username, $password)
+    {
+        $queryBuilder = $this->db->createQueryBuilder();
+        $queryBuilder
+            ->select('u.*')
+            ->from('users', 'u')
+            ->where('u.username = :username OR u.mail = :mail')
+            ->setParameter('username', $username)
+            ->setParameter('mail', $username)
+            ->setMaxResults(1);
+        $statement = $queryBuilder->execute();
+        $usersData = $statement->fetchAll();
+        if (empty($usersData)) {
+            throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
+        }
+
+        $user = $this->buildUser($usersData[0]);
+        $pass = $this->encoder->encodePassword($user->getPassword(), $user->getSalt());
+        if ($pass == $password) {
+            return $user;
+        } else {
+            throw new UsernameNotFoundException(sprintf('Incorrect username/email or password "%s"', $username));
+        }
+    }
+
     /**
      * {@inheritDoc}
      */

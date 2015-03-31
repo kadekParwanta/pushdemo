@@ -100,9 +100,9 @@ class UserController
                 $responseData['error'] = FALSE;
                 $responseData['uid'] = $user->getId();
                 $responseData['user']['name'] = $user->getUsername();
-                $responseData['user']['email'] = $user->getMail;
+                $responseData['user']['email'] = $user->getMail();
                 $responseData['user']['created_at'] = $user->getCreatedAt();
-                $responseData['user']['gcmId'] = $user->getGcm;
+                $responseData['user']['gcmId'] = $user->getGcm();
                 $response->setContent(json_encode($responseData));
                 $app['session']->getFlashBag()->add('success', $message);    
             } else {
@@ -143,7 +143,7 @@ class UserController
         $usernameOrEmail = $request->get('usernameOrEmail');
         $password = $request->get('password');
 
-        $existingUser = $app['repository.user']->loadUserByUsername($usernameOrEmail);
+        $existingUser = $app['repository.user']->loadUserByUsernameAndPassword($usernameOrEmail, $password);
         $responseData = array('error' => FALSE);
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json'); 
@@ -152,9 +152,9 @@ class UserController
             $responseData['error'] = FALSE;
             $responseData['uid'] = $existingUser->getId();
             $responseData['user']['name'] = $existingUser->getUsername();
-            $responseData['user']['email'] = $existingUser->getMail;
+            $responseData['user']['email'] = $existingUser->getMail();
             $responseData['user']['created_at'] = $existingUser->getCreatedAt();
-            $responseData['user']['gcmId'] = $existingUser->getGcm;
+            $responseData['user']['gcmId'] = $existingUser->getGcm();
             $app['session']->getFlashBag()->add('success', $message);
             $response->setContent(json_encode($responseData));               
             
