@@ -88,7 +88,8 @@ class UserController
             $existingUser = $app['repository.user']->loadUserByUsername($username);
             $responseData['error'] = TRUE;
             $responseData['error_message'] = 'User already existed';
-            $response->setContent(json_encode($responseData));
+            $response->setContent(json_encode($responseData)); 
+            $response->setStatusCode(500);  
         } catch (UsernameNotFoundException $e) {
             $user = new User();
             $user->setUsername($request->get('username'));
@@ -104,12 +105,14 @@ class UserController
                 $responseData['user']['email'] = $user->getMail();
                 $responseData['user']['created_at'] = $user->getCreatedAt();
                 $responseData['user']['gcmId'] = $user->getGcm();
-                $response->setContent(json_encode($responseData));
+                $response->setContent(json_encode($responseData)); 
+                $response->setStatusCode(200);  
                 $app['session']->getFlashBag()->add('success', $message);    
             } else {
                 $responseData['error'] = TRUE;
                 $responseData['error_message'] = 'Error occured in registration';
-                $response->setContent(json_encode($responseData));
+                $response->setContent(json_encode($responseData)); 
+                $response->setStatusCode(500);  
             }
         }
 
@@ -157,10 +160,12 @@ class UserController
             $responseData['user']['gcmId'] = $existingUser->getGcm();
             $app['session']->getFlashBag()->add('success', $message);
             $response->setContent(json_encode($responseData));  
+            $response->setStatusCode(200);  
         } catch (UsernameNotFoundException $e) {
             $responseData['error'] = TRUE;
             $responseData['error_message'] = 'Incorrect Email/Username or password!';
             $response->setContent(json_encode($responseData));
+            $response->setStatusCode(500);  
         }
 
         return $response;
