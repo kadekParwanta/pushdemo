@@ -61,23 +61,85 @@ class UserController
     * 
     * return:
     *   201 : Created
+    *   500 : Error (Already exist; Error in db)
     */
 
     public function registerAction(Request $request, Application $app)
     {
-        $user = new User();
-        if ($request->isMethod('POST')) {
+        $username = $request->get('username');
+        $mail = $request->get('mail');
+        $password = $request->get('password');
+
+        $existingUser = $app['repository.user']->loadUserByUsername($username);
+        $response = array('error' => FALSE);
+
+        if($existingUser) {
+            $response['error'] = TRUE;
+            $response['error_message'] = 'User already existed';
+            return new Response($response, 500);  
+        } else {
+            $user = new User();
             $user->setUsername($request->get('username'));
             $user->setPassword($request->get('password'));
             $user->setMail($request->get('mail'));
             $user->setRole($request->get('role'));
             $user->setGcm($request->get('gcm_regid'));
 
-            $app['repository.user']->save($user);
-            $message = 'The user ' . $user->getUsername() . ' has been saved.';
-            $app['session']->getFlashBag()->add('success', $message);                
-            return new Response($message, 201);
+            if ($app['repository.user']->save($user)) {
+                $response['error'] = FALSE;
+                $response['uid'] = $user->getId();
+                $response['user']['name'] = $user->getUsername();
+                $response['user']['email'] = $user->getMail;
+                $response['user']['created_at'] = $user->getCreatedAt();
+                $response['user']['gcmId'] = $user->getGcm;
+                $app['session']->getFlashBag()->add('success', $message);                
+                return new Response($response, 201);              
+            } else {
+                $response['error'] = TRUE;
+                $response['error_message'] = 'Error occured in registration';
+                return new Response($response, 500);  
+            }
+            
         }
+        
+    }
+
+    /*
+    * /client_login API
+    * method : POST
+    * 
+    * params:
+    *   usernameOrEmail
+    *   password
+    * 
+    * return:
+    *   200 : OK
+    *   500 : Error (Incorrect params)
+    */
+
+    public function clientLoginAction(Request $request, Application $app)
+    {
+        $usernameOrEmail = $request->get('usernameOrEmail');
+        $password = $request->get('password');
+
+        $existingUser = $app['repository.user']->loadUserByUsername($usernameOrEmail);
+        $response = array('error' => FALSE);
+
+        if($existingUser) {
+            $response['error'] = FALSE;
+            $response['uid'] = $existingUser->getId();
+            $response['user']['name'] = $existingUser->getUsername();
+            $response['user']['email'] = $existingUser->getMail;
+            $response['user']['created_at'] = $existingUser->getCreatedAt();
+            $response['user']['gcmId'] = $existingUser->getGcm;
+            $app['session']->getFlashBag()->add('success', $message);                
+            return new Response($response, 200);   
+        } else {
+            $response['error'] = TRUE;
+            $response['error_message'] = 'Incorrect Email/Username or password!';
+            return new Response($response, 500); 
+        }
+        
     }
 
      /*
@@ -91,7 +153,7 @@ class UserController
     *   message
     * 
     * return:
-    *   000 : message sent
+    *   200 : message sent
     */
 
     public function pushToUserAction(Request $request, Application $app)

@@ -19,12 +19,14 @@ $app->match('/login', 'PushDemo\Controller\UserController::loginAction')
     ->bind('login');
 $app->get('/logout', 'PushDemo\Controller\UserController::logoutAction')
     ->bind('logout');
-$app->match('/register', 'PushDemo\Controller\UserController::registerAction')
+$app->post('/register', 'PushDemo\Controller\UserController::registerAction')
     ->bind('register');
 $app->get('/user_edit', 'PushDemo\Controller\UserController::editUserAction')
     ->bind('user_edit');
 $app->match('/push_to_user', 'PushDemo\Controller\UserController::pushToUserAction')
     ->bind('push_to_user');
+$app->post('/client_login', 'PushDemo\Controller\UserController::clientLoginAction')
+    ->bind('client_login');
 
 
 $app->get('/admin', 'PushDemo\Controller\AdminController::indexAction')
