@@ -100,8 +100,10 @@ class AdminUserController
 
     public function sendAction(Request $request, Application $app)
     {
-        $gcmId = $request->get('gcm');
+        $username = $request->get('username');
         $message = $request->get('message');
+        $user = $app['repository.user']->loadUserByUsername($username);
+        $gcmId = $user->getGcm();
         if (!$gcmId) {
             $app->abort(404, 'The requested gcm id was not found. request='.$request);
         }
@@ -137,6 +139,6 @@ class AdminUserController
             return 'message could not be sent';
         }
 
-        return $app->redirect($app['url_generator']->generate('homepage'));
+        return 'a message has been sent to user'.$username.' : '.$message;
     }
 }

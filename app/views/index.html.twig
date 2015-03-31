@@ -8,11 +8,8 @@
 		{% for user in users %}
         <li>
             <form action="{{ path('send_message') }}" method="post" class="form-vertical" id="sendform">
-            User name: {{user.username}}<br>
-            GCM ID: <input type="text" name="gcm" value={{user.gcm}}><br>
-            <br><br>
+            User name: <input type="text" name="username" value={{user.username}}><br>
             Message: <input type="text" name="message"><br>
-            <br><br>
             <input type="submit" value="Send Notification">
             </form>
         </li>
