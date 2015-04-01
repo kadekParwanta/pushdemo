@@ -79,6 +79,8 @@ class UserController
         $username = $request->get('username');
         $mail = $request->get('mail');
         $password = $request->get('password');
+        $role = $request->get('role');
+        $gcmId = $request->get('gcm_regid');
 
         $responseData = array('error' => FALSE);
         $response = new Response();
@@ -92,13 +94,14 @@ class UserController
             $response->setStatusCode(500);  
         } catch (UsernameNotFoundException $e) {
             $user = new User();
-            $user->setUsername($request->get('username'));
-            $user->setPassword($request->get('password'));
-            $user->setMail($request->get('mail'));
-            $user->setRole($request->get('role'));
-            $user->setGcm($request->get('gcm_regid'));
+            $user->setUsername($username);
+            $user->setPassword($password);
+            $user->setMail($mail);
+            $user->setRole($role);
+            $user->setGcm($gcmId);
 
             $app['repository.user']->save($user);
+            $user = $app['repository.user']->loadUserByUsername($username);
             $responseData['error'] = FALSE;
             $responseData['uid'] = $user->getId();
             $responseData['user']['name'] = $user->getUsername();
