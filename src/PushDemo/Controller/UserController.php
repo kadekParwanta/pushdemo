@@ -103,7 +103,7 @@ class UserController
             $app['repository.user']->save($user);
             $user = $app['repository.user']->loadUserByUsername($username);
             $responseData['error'] = FALSE;
-            $responseData['uid'] = $user->getId();
+            $responseData['user']['uid'] = $user->getId();
             $responseData['user']['name'] = $user->getUsername();
             $responseData['user']['email'] = $user->getMail();
             $responseData['user']['created_at'] = $user->getCreatedAt();
@@ -168,7 +168,7 @@ class UserController
         try {
             $existingUser = $app['repository.user']->loadUserByUsernameAndPassword($usernameOrEmail, $password);
             $responseData['error'] = FALSE;
-            $responseData['uid'] = $existingUser->getId();
+            $responseData['user']['uid'] = $existingUser->getId();
             $responseData['user']['name'] = $existingUser->getUsername();
             $responseData['user']['email'] = $existingUser->getMail();
             $responseData['user']['created_at'] = $existingUser->getCreatedAt();
