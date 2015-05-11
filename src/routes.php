@@ -27,6 +27,8 @@ $app->match('/push_to_user', 'PushDemo\Controller\UserController::pushToUserActi
     ->bind('push_to_user');
 $app->post('/client_login', 'PushDemo\Controller\UserController::clientLoginAction')
     ->bind('client_login');
+$app->post('/user_token', 'PushDemo\Controller\UserController::userTokenAction')
+    ->bind('user_token');
 
 
 $app->get('/admin', 'PushDemo\Controller\AdminController::indexAction')

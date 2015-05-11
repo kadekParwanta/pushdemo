@@ -7,6 +7,7 @@ use PushDemo\Form\Type\UserType;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use PushDemo\Helper\PHP_GCM\Sender;
 use PushDemo\Helper\PHP_GCM\Message;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -265,4 +266,84 @@ class UserController
         }
 
     }
+
+   /* Temporary Please REMOVE 
+    * /user_token API
+    * Web hook from ionic
+
+    { 
+        "received": "2015-03-18T17:21:42.571286",
+        "user_id": 1337,
+        "name": "Test_User",
+        "app_id": "YOUR_APP_ID",
+        "_push": {
+            "android_tokens": [
+            "asg3tgqg", "3tgfgt23yg", "g3ggqg3g4g", "h45g4wtgwh4"
+            ]
+        },
+        "message": "I come from planet Ion" 
+    }
+
+    */
+
+    public function userTokenAction(Request $request, Application $app)
+    {
+        if ($request->isMethod('POST')) {
+            $responseData = array('error' => FALSE);
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/json');
+
+            if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+                $app['monolog']->addDebug('request getContent ' . $request->getContent()); 
+                $data = json_decode($request->getContent(), true);
+                $app['monolog']->addDebug('user_token data ' . $data); 
+                if (empty($data)) {
+                    return new Response('Json body is empty', 200);
+                }
+                
+                $token_invalid =  $data['token_invalid'];
+                if ($token_invalid) {
+                    return new Response('Token Invalid', 200);
+                }
+
+                $username = $data['name'];
+                $app['monolog']->addDebug('user_token username ' . $username); 
+                $mail = $data['message'];
+                $password = $data['app_id'];
+                $role = 'ROLE_USER';
+                $gcmId = $data['_push']['android_tokens'][0];
+                $app['monolog']->addDebug('user_token gcmId ' . $gcmId);
+
+                try {
+                    $existingUser = $app['repository.user']->loadUserByUsername($username);
+                    $responseData['error'] = TRUE;
+                    $responseData['error_message'] = 'User already existed';
+                    $response->setContent(json_encode($responseData)); 
+                    $response->setStatusCode(500);  
+                } catch (UsernameNotFoundException $e) {
+                    $user = new User();
+                    $user->setUsername($username);
+                    $user->setPassword($password);
+                    $user->setMail($mail);
+                    $user->setRole($role);
+                    $user->setGcm($gcmId);
+
+                    $app['repository.user']->save($user);
+                    $user = $app['repository.user']->loadUserByUsername($username);
+                    $responseData['error'] = FALSE;
+                    $responseData['user']['uid'] = $user->getId();
+                    $responseData['user']['name'] = $user->getUsername();
+                    $responseData['user']['email'] = $user->getMail();
+                    $responseData['user']['created_at'] = $user->getCreatedAt();
+                    $responseData['user']['gcmId'] = $user->getGcm();
+                    $response->setContent(json_encode($responseData)); 
+                    $response->setStatusCode(200);  
+                    $app['session']->getFlashBag()->add('success', $message); 
+                }
+            }
+
+            return $response;
+        }
+    }
+
 }
